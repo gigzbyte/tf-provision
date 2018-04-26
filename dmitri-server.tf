@@ -1,27 +1,25 @@
-
 variable "VPC-name" {
   default = "RND-TF"
-  description = "VPC Name"
-}
-
-variable "instance_ami" {
-  default = ""
-  description = "Instance AMI"
 }
 
 variable "instance_type" {
   default = "t2.nano"
-  description = "DInstance type"
 }
 
 variable "instance_name" {
   default = "dmitrisrv.local"
-  description = "Instance name"
 }
 
 variable "key_name" {
   default = "DLoktev"
-  description = "SSH key"
+}
+
+variable "ec2-instance-username" {
+  default = "ubuntu"
+}
+
+variable "ec2-instance-key-file" {
+  default = "~/.ssh/keys/Unknown/AWS_RD.key"
 }
 
 variable "vpc-fullcidr" {
@@ -67,12 +65,14 @@ module "dmitri-igw" {
 module "dmitri-natgw-a" {
   source = "modules/natgw"
   vpc-subnet-id = "${module.dmitri-subnet-PUB-A.subnet_id}"
-  vpc-igw-id = "${module.dmitri-igw.igw_id}-NATGW-A"
+  vpc-igw-id = "${module.dmitri-igw.igw_id}"
+  vpc-natgw-name = "${var.VPC-name}-NATGW-A"
 }
 module "dmitri-natgw-b" {
   source = "modules/natgw"
   vpc-subnet-id = "${module.dmitri-subnet-PUB-B.subnet_id}"
-  vpc-igw-id = "${module.dmitri-igw.igw_id}-NATGW-B"
+  vpc-igw-id = "${module.dmitri-igw.igw_id}"
+  vpc-natgw-name = "${var.VPC-name}-NATGW-B"
 }
 
 ##############################################################
@@ -151,8 +151,9 @@ module "dmitri-firstserver" {
   vpc-name = "${var.VPC-name}"
   vpc-subnet-id = "${module.dmitri-subnet-PUB-B.subnet_id}"
   ec2-key-name = "${var.key_name}"
-  ec2-ami-image = "${var.instance_ami}"
   ec2-instance-type = "${var.instance_type}"
   ec2-securitygroup = "${module.dmitri-securitygroup.securitygroup_id}"
   ec2-name = "${var.instance_name}"
+  ec2-instance-username = "${var.ec2-instance-username}"
+  ec2-instance-key-file = "${var.ec2-instance-key-file}"
 }
